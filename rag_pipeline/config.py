@@ -15,8 +15,8 @@ class PipelineConfig:
     fusion_k: int = 60
     rerank_keep_top_k: int = 12
     nli_threshold: float = 0.52
-    contradiction_threshold: float = 0.6
-    neutral_confidence_gate: float = 0.6
+    contradiction_threshold: float = 0.95
+    neutral_confidence_gate: float = 0.55
     neutral_entailment_floor: float = 0.0
     fallback_entailment_threshold: float = 0.55
     lexical_support_overlap: float = 0.15
