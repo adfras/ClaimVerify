@@ -5,3 +5,5 @@ __pycache__/
 *.log
 data/
 streamlit_cache/
+
+full_text/

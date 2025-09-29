@@ -16,10 +16,10 @@ class PipelineConfig:
     rerank_keep_top_k: int = 12
     nli_threshold: float = 0.52
     contradiction_threshold: float = 0.6
-    neutral_confidence_gate: float = 0.7
-    neutral_entailment_floor: float = 0.05
-    fallback_entailment_threshold: float = 0.6
-    lexical_support_overlap: float = 0.2
+    neutral_confidence_gate: float = 0.6
+    neutral_entailment_floor: float = 0.0
+    fallback_entailment_threshold: float = 0.55
+    lexical_support_overlap: float = 0.15
     require_modal_alignment: bool = True
     entailment_label_index: int = 2  # default huggingface MNLI ordering
     models: dict[str, str] = field(
