@@ -1,0 +1,10 @@
+faiss-cpu
+numpy
+pypdf
+rank-bm25
+sentence-transformers
+spacy
+torch
+transformers
+protobuf
+sentencepiece
