@@ -7,3 +7,5 @@ data/
 streamlit_cache/
 
 full_text/
+logs/
+pdf_skip.txt

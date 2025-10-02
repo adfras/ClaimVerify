@@ -4,9 +4,12 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
+import warnings
+import re
 
 import faiss
 import numpy as np
+import torch
 from sentence_transformers import SentenceTransformer
 
 from .config import PipelineConfig
@@ -29,14 +32,20 @@ class CorpusArtifacts:
     metadata_path: Path
 
 
+TOKEN_PATTERN = re.compile(r"[A-Za-z0-9']+")
+
+
 def simple_tokenize(text: str) -> list[str]:
-    return text.lower().split()
+    if not text:
+        return []
+    return [match.lower() for match in TOKEN_PATTERN.findall(text)]
 
 
 class IndexBuilder:
     def __init__(self, config: PipelineConfig):
         self.config = config
         self.config.ensure_paths()
+        self._device = self._resolve_device(self.config.inference_device)
         self.artifacts = CorpusArtifacts(
             documents_path=self.config.work_dir / "artifacts" / "documents.jsonl",
             chunks_path=self.config.work_dir / "artifacts" / "chunks.jsonl",
@@ -66,8 +75,8 @@ class IndexBuilder:
 
     def _build_dense_index(self, chunks: Sequence[Chunk]) -> None:
         embedder_name = self.config.models["embedder"]
-        embedder = SentenceTransformer(embedder_name)
-        embedder.max_seq_length = 512
+        embedder = SentenceTransformer(embedder_name, device=self._device)
+        embedder.max_seq_length = 256
         texts = [chunk.text for chunk in chunks]
         embeddings = embedder.encode(
             texts,
@@ -95,3 +104,25 @@ class IndexBuilder:
             "chunk_overlap_tokens": self.config.chunk_overlap_tokens,
         }
         self.artifacts.metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+
+    def _resolve_device(self, preference: str) -> str:
+        pref = preference.lower()
+        if pref not in {"auto", "cpu", "cuda"}:
+            warnings.warn(
+                f"Unknown inference_device '{preference}', defaulting to CPU.",
+                RuntimeWarning,
+            )
+            pref = "auto"
+        if pref == "cpu":
+            return "cpu"
+        if pref == "cuda":
+            if torch.cuda.is_available():
+                return "cuda"
+            warnings.warn(
+                "CUDA requested but not available; falling back to CPU.",
+                RuntimeWarning,
+            )
+            return "cpu"
+        if torch.cuda.is_available():
+            return "cuda"
+        return "cpu"

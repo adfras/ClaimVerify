@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, List, Optional
 
 
 @dataclass
@@ -13,6 +13,9 @@ class Document:
     text: str
     pages: list[str]
     page_spans: list[tuple[int, int]]
+    authors: List[str] = field(default_factory=list)
+    doi: Optional[str] = None
+    source_quality: float = 0.0
 
     def to_payload(self) -> dict[str, Any]:
         payload = asdict(self)

@@ -35,6 +35,9 @@ def load_documents(path: Path) -> List[Document]:
                     text=payload["text"],
                     pages=pages,
                     page_spans=page_spans,
+                    authors=payload.get("authors") or [],
+                    doi=payload.get("doi"),
+                    source_quality=float(payload.get("source_quality", 0.0)),
                 )
             )
     return documents

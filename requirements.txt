@@ -1,10 +1,12 @@
-faiss-cpu
-numpy
+faiss-gpu-cu12==1.12.0
+numpy>=1.26,<2
 pypdf
 rank-bm25
 sentence-transformers
 spacy
-torch
 transformers
 protobuf
 sentencepiece
+streamlit
+openai
+requests

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import argparse
 import json
+from pathlib import Path
 
 from rag_pipeline.config import PipelineConfig
 from rag_pipeline.pipeline import HybridRetriever
@@ -33,8 +35,27 @@ CASES = [
 ]
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Run the six-claim VR/body ownership regression suite."
+    )
+    parser.add_argument(
+        "--work-dir",
+        type=Path,
+        default=Path("data"),
+        help="Directory containing retrieval artifacts (e.g. data or data/chunk_420).",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
-    config = PipelineConfig()
+    args = parse_args()
+    config = PipelineConfig(work_dir=args.work_dir)
+    summary = run_cases(config)
+    print(json.dumps(summary, indent=2))
+
+
+def run_cases(config: PipelineConfig) -> dict:
     retriever = HybridRetriever(config)
     results = []
     correct = 0
@@ -58,7 +79,7 @@ def main() -> None:
         "accuracy": correct / len(CASES),
         "details": results,
     }
-    print(json.dumps(summary, indent=2))
+    return summary
 
 
 if __name__ == "__main__":
